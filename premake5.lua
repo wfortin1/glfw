@@ -1,6 +1,7 @@
 project "GLFW"
 	kind "StaticLib"
 	language "C"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -14,14 +15,21 @@ project "GLFW"
 		"src/init.c",
 		"src/input.c",
 		"src/monitor.c",
+
+		"src/null_init.c",
+		"src/null_joystick.c",
+		"src/null_monitor.c",
+		"src/null_window.c",
+
+		"src/platform.c",
 		"src/vulkan.c",
-		"src/window.c"
+		"src/window.c",
 	}
+
 	filter "system:linux"
 		pic "On"
 
 		systemversion "latest"
-		staticruntime "On"
 
 		files
 		{
@@ -36,20 +44,20 @@ project "GLFW"
 			"src/osmesa_context.c",
 			"src/linux_joystick.c"
 		}
-
+	
 		defines
 		{
 			"_GLFW_X11"
 		}
-
+	
 	filter "system:windows"
 		systemversion "latest"
-		staticruntime "On"
-
+		
 		files
 		{
 			"src/win32_init.c",
 			"src/win32_joystick.c",
+			"src/win32_module.c",
 			"src/win32_monitor.c",
 			"src/win32_time.c",
 			"src/win32_thread.c",
@@ -58,17 +66,27 @@ project "GLFW"
 			"src/egl_context.c",
 			"src/osmesa_context.c"
 		}
-
-		defines 
-		{ 
+		
+		defines
+		{
 			"_GLFW_WIN32",
 			"_CRT_SECURE_NO_WARNINGS"
 		}
-
+		
+		links
+		{
+			"Dwmapi.lib"
+		}
+	
 	filter "configurations:Debug"
 		runtime "Debug"
 		symbols "on"
-
+	
 	filter "configurations:Release"
 		runtime "Release"
 		optimize "on"
+	
+	filter "configurations:Dist"
+		runtime "Release"
+		optimize "on"
+		symbols "off"
